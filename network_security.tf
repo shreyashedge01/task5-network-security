@@ -3,35 +3,32 @@ resource "aws_security_group" "ssh_sg" {
   description = "SSH Security Group"
   vpc_id      = var.vpc_id
 
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_ip_range
+  }
+
+  ingress {
+    description = "ICMP"
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = var.allowed_ip_range
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
     Project = "epam-tf-lab"
   }
-}
-
-resource "aws_security_group_rule" "ssh_rule" {
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  cidr_blocks       = var.allowed_ip_range
-  security_group_id = aws_security_group.ssh_sg.id
-}
-
-resource "aws_security_group_rule" "ssh_icmp" {
-  type              = "ingress"
-  from_port         = -1
-  to_port           = -1
-  protocol          = "icmp"
-  cidr_blocks       = var.allowed_ip_range
-  security_group_id = aws_security_group.ssh_sg.id
-}
-resource "aws_security_group_rule" "ssh_egress" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.ssh_sg.id
 }
 
 resource "aws_security_group" "public_http_sg" {
@@ -39,36 +36,32 @@ resource "aws_security_group" "public_http_sg" {
   description = "Public HTTP Security Group"
   vpc_id      = var.vpc_id
 
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_ip_range
+  }
+
+  ingress {
+    description = "ICMP"
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = var.allowed_ip_range
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
     Project = "epam-tf-lab"
   }
-}
-
-resource "aws_security_group_rule" "public_http_rule" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = var.allowed_ip_range
-  security_group_id = aws_security_group.public_http_sg.id
-}
-
-resource "aws_security_group_rule" "public_http_icmp" {
-  type              = "ingress"
-  from_port         = -1
-  to_port           = -1
-  protocol          = "icmp"
-  cidr_blocks       = var.allowed_ip_range
-  security_group_id = aws_security_group.public_http_sg.id
-}
-
-resource "aws_security_group_rule" "public_http_egress" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.public_http_sg.id
 }
 
 resource "aws_security_group" "private_http_sg" {
@@ -76,27 +69,32 @@ resource "aws_security_group" "private_http_sg" {
   description = "Private HTTP Security Group"
   vpc_id      = var.vpc_id
 
+  ingress {
+    description     = "Private HTTP"
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.public_http_sg.id]
+  }
+
+  ingress {
+    description     = "ICMP"
+    from_port       = -1
+    to_port         = -1
+    protocol        = "icmp"
+    security_groups = [aws_security_group.public_http_sg.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
     Project = "epam-tf-lab"
   }
-}
-
-resource "aws_security_group_rule" "private_http_rule" {
-  type                     = "ingress"
-  from_port                = 8080
-  to_port                  = 8080
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.public_http_sg.id
-  security_group_id        = aws_security_group.private_http_sg.id
-}
-
-resource "aws_security_group_rule" "private_http_icmp" {
-  type                     = "ingress"
-  from_port                = -1
-  to_port                  = -1
-  protocol                 = "icmp"
-  source_security_group_id = aws_security_group.public_http_sg.id
-  security_group_id        = aws_security_group.private_http_sg.id
 }
 
 data "aws_instance" "public_instance" {
