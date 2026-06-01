@@ -4,7 +4,7 @@ resource "aws_security_group" "ssh_sg" {
   vpc_id      = var.vpc_id
 
   tags = {
-    Project = "cmtr-ouv17nh6"
+    Project = "epam-tf-lab"
   }
 }
 
@@ -25,6 +25,14 @@ resource "aws_security_group_rule" "ssh_icmp" {
   cidr_blocks       = var.allowed_ip_range
   security_group_id = aws_security_group.ssh_sg.id
 }
+resource "aws_security_group_rule" "ssh_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.ssh_sg.id
+}
 
 resource "aws_security_group" "public_http_sg" {
   name        = "cmtr-ouv17nh6-public-http-sg"
@@ -32,7 +40,7 @@ resource "aws_security_group" "public_http_sg" {
   vpc_id      = var.vpc_id
 
   tags = {
-    Project = "cmtr-ouv17nh6"
+    Project = "epam-tf-lab"
   }
 }
 
@@ -54,13 +62,22 @@ resource "aws_security_group_rule" "public_http_icmp" {
   security_group_id = aws_security_group.public_http_sg.id
 }
 
+resource "aws_security_group_rule" "public_http_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.public_http_sg.id
+}
+
 resource "aws_security_group" "private_http_sg" {
   name        = "cmtr-ouv17nh6-private-http-sg"
   description = "Private HTTP Security Group"
   vpc_id      = var.vpc_id
 
   tags = {
-    Project = "cmtr-ouv17nh6"
+    Project = "epam-tf-lab"
   }
 }
 
